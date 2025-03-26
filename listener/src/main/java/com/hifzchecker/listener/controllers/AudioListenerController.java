@@ -1,5 +1,6 @@
 package com.hifzchecker.listener.controllers;
 
+import com.hifzchecker.listener.whisper.WhisperTranscriber;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -24,22 +25,6 @@ public class AudioListenerController {
     }
 
     private String runWhisperScript(String audioFilePath) throws IOException, InterruptedException {
-        // Execute the Python script using ProcessBuilder
-        ProcessBuilder processBuilder = new ProcessBuilder("python3", "transcribe.py", audioFilePath);
-        processBuilder.redirectErrorStream(true);
-
-        Process process = processBuilder.start();
-        process.waitFor();
-
-        // Capture the output (transcription text) from the Python script
-        StringBuilder output = new StringBuilder();
-        try (var reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                output.append(line);
-            }
-        }
-
-        return output.toString();
+        return new WhisperTranscriber().transcribe(audioFilePath);
     }
 }

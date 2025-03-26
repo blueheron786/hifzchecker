@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record and Upload Audio</title>
+</head>
+<body>
+<h1>Record and Upload Your Audio</h1>
+
+<!-- Form for uploading the audio file -->
+<form id="audioForm" action="/web/upload" method="POST" enctype="multipart/form-data">
+    <label for="audioFile">Choose an Audio File</label>
+    <input type="file" id="audioFile" name="file" accept="audio/*" required>
+
+    <br>
+
+    <button type="submit">Upload Audio</button>
+</form>
+
+<h2>Or Record Audio Directly</h2>
+<button id="startRecording">Start Recording</button>
+<button id="stopRecording" disabled>Stop Recording</button>
+<audio id="audioPlayer" controls></audio>
+
+<script>
+    // Recording functionality using Web Audio API and MediaRecorder
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioBlob;
+    let audioUrl;
+    let audioPlayer = document.getElementById('audioPlayer');
+
+    const startButton = document.getElementById('startRecording');
+    const stopButton = document.getElementById('stopRecording');
+
+    startButton.addEventListener('click', () => {
+        startRecording();
+    });
+
+    stopButton.addEventListener('click', () => {
+        stopRecording();
+    });
+
+    // Start the recording
+    function startRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayer.src = audioUrl;
+
+                    // Enable the file upload button once recording is done
+                    const fileInput = document.getElementById('audioFile');
+                    const file = new File([audioBlob], 'audio.wav', { type: 'audio/wav' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+
+                    stopButton.disabled = true;
+                };
+                mediaRecorder.start();
+                stopButton.disabled = false;
+            });
+    }
+
+    // Stop the recording
+    function stopRecording() {
+        mediaRecorder.stop();
+        stopButton.disabled = true;
+        startButton.disabled = false;
+    }
+</script>
+</body>
+</html>

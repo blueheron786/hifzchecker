@@ -13,22 +13,28 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
+	// Spring Boot Starter for web applications (includes controllers, REST APIs, etc.)
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Spring Boot Starter for running web applications with Thymeleaf (if you want templates later)
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// For handling multipart file uploads (part of spring-boot-starter-web)
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Lombok to reduce boilerplate code in Java classes (optional)
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Spring Boot DevTools for easier development (optional)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// For testing purposes (JUnit, Spring Boot test starter)
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

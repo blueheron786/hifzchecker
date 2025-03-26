@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/listener")
@@ -12,7 +13,7 @@ public class AudioListenerController {
     @PostMapping("/transcribe")
     public String transcribeAudio(@RequestParam("file") MultipartFile file) throws IOException, InterruptedException {
         // Save the uploaded file to disk
-        File audioFile = new File("uploaded_audio.wav");
+        File audioFile = new File("uploaded-audio-" + UUID.randomUUID().toString() + ".wav");
         file.transferTo(audioFile);
 
         // Call Python script to process the file

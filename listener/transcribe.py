@@ -1,8 +1,9 @@
 import whisper
 import sys
 
-# Load the Whisper model
-model = whisper.load_model("base")  # You can use different models like "small", "medium", etc.
+# Load the Whisper model.
+# Tiny, base, small, medium, and large (requires more RAM than I have).
+model = whisper.load_model("tiny")
 
 # Transcribe the audio file passed via command-line argument
 audio_file = sys.argv[1]

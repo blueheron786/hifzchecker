@@ -14,9 +14,8 @@ public class AudioListenerController {
     @PostMapping("/transcribe")
     public String transcribeAudio(@RequestParam("file") MultipartFile file) throws IOException, InterruptedException {
         // Save the uploaded file to disk
-        File audioFile = new File("uploaded-audio-" + UUID.randomUUID().toString() + ".wav");
+        File audioFile = File.createTempFile("uploaded-audio", ".wav");
         file.transferTo(audioFile);
-
         // Call Python script to process the file
         String transcription = runWhisperScript(audioFile.getAbsolutePath());
 

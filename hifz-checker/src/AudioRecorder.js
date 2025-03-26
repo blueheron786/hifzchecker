@@ -78,7 +78,7 @@ function AudioRecorder() {
           <h2>Preview</h2>
           <audio controls src={audioUrl}></audio>
           <br />
-          <button onClick={uploadAudio}>Upload Audio</button>
+          <button onClick={uploadAudio}>Transcribe Audio</button>
         </div>
       )}
     </div>

@@ -6,6 +6,8 @@ function AudioRecorder() {
   const [audioBlob, setAudioBlob] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
 
+  const transcriptionDiv = document.getElementById('transcription-output');
+
   const startRecording = () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -37,21 +39,30 @@ function AudioRecorder() {
   };
 
     const uploadAudio = () => {
-      const formData = new FormData();
-      formData.append("file", audioBlob, "audio.wav");
+        transcriptionDiv.textContent = "";
+        const formData = new FormData();
+        formData.append("file", audioBlob, "audio.wav");
 
-      fetch("http://localhost:8080/web/upload", {
-        method: "POST",
-        body: formData,  // Don't manually set Content-Type header
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log("Upload successful:", data);
+        fetch("http://localhost:8080/web/upload", {
+            method: "POST",
+            body: formData,  // Don't manually set Content-Type header
+        })
+        .then(response => response.text())  // Expect plain text response
+        .then(transcription => {
+            // Find the div where the transcription will go
+
+            if (transcriptionDiv) {
+                // Update the div with the transcription
+                transcriptionDiv.textContent = transcription;
+            } else {
+                console.error("Transcription output div not found.");
+            }
         })
         .catch(error => {
-          console.error("Error uploading file:", error);
+            console.error("Error uploading file:", error);
         });
     };
+
 
   return (
     <div>
@@ -59,10 +70,14 @@ function AudioRecorder() {
       <button onClick={startRecording} disabled={isRecording}>Start Recording</button>
       <button onClick={stopRecording} disabled={!isRecording}>Stop Recording</button>
 
-      {audioUrl && (
+        <div id="transcription-output"></div>
+
+        <br />
+      { audioUrl && (
         <div>
           <h2>Preview</h2>
           <audio controls src={audioUrl}></audio>
+          <br />
           <button onClick={uploadAudio}>Upload Audio</button>
         </div>
       )}

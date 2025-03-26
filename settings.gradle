@@ -1,0 +1,4 @@
+rootProject.name = 'hifzchecker'
+
+include 'web'
+include 'listener'

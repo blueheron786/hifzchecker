@@ -18,12 +18,6 @@ public class WebController {
 
     private static final String LISTENER_API_URL = "http://localhost:8081/listener/transcribe";  // Listener API URL
 
-    @GetMapping("/upload")
-    public String showUploadPage(Model model) {
-        // This will return the Thymeleaf upload page
-        return "upload"; // Make sure this matches your template name (upload.html)
-    }
-
     @PostMapping("/upload")
     public ResponseEntity<String> uploadAudio(@RequestParam("file") MultipartFile file) {
         try {

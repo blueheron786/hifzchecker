@@ -39,30 +39,42 @@ function AudioRecorder() {
   };
 
     const uploadAudio = () => {
-        transcriptionDiv.textContent = "";
         const formData = new FormData();
         formData.append("file", audioBlob, "audio.wav");
+
+        // Get the div for output (where both transcription and processing time will be displayed)
+        const outputDiv = document.getElementById('transcription-output');
+        if (outputDiv) {
+            outputDiv.textContent = "Processing...";  // Show "Processing..."
+        }
+
+        const startTime = Date.now();  // Record start time before the request
 
         fetch("http://localhost:8080/web/upload", {
             method: "POST",
             body: formData,  // Don't manually set Content-Type header
         })
-        .then(response => response.text())  // Expect plain text response
+        .then(response => response.text())  // Expect plain text response (transcription)
         .then(transcription => {
-            // Find the div where the transcription will go
+            const endTime = Date.now();  // Record end time after the response is received
+            const generationTime = ((endTime - startTime) / 1000).toFixed(1); // Time in seconds (1 decimal place)
 
-            if (transcriptionDiv) {
-                // Update the div with the transcription
-                transcriptionDiv.textContent = transcription;
+            // Update the output div with the transcription and processing time
+            if (outputDiv) {
+                outputDiv.innerHTML = `${transcription}<br><br>Processed in ${generationTime} seconds`;  // Display both transcription and time
             } else {
-                console.error("Transcription output div not found.");
+                console.error("Output div not found.");
             }
         })
         .catch(error => {
             console.error("Error uploading file:", error);
+
+            // Handle the error in case of failure
+            if (outputDiv) {
+                outputDiv.textContent = "Error processing file.";  // Show error message in the output div
+            }
         });
     };
-
 
   return (
     <div>

@@ -54,14 +54,14 @@ function AudioRecorder() {
             method: "POST",
             body: formData,  // Don't manually set Content-Type header
         })
-        .then(response => response.text())  // Expect plain text response (transcription)
+        .then(response => response.json())  // Expect plain text response (transcription)
         .then(transcription => {
             const endTime = Date.now();  // Record end time after the response is received
             const generationTime = ((endTime - startTime) / 1000).toFixed(1); // Time in seconds (1 decimal place)
 
             // Update the output div with the transcription and processing time
             if (outputDiv) {
-                outputDiv.innerHTML = `${transcription}<br><br>Processed in ${generationTime} seconds`;  // Display both transcription and time
+                outputDiv.innerHTML = `${transcription["text"]}<br><br>Processed in ${generationTime} seconds`;  // Display both transcription and time
             } else {
                 console.error("Output div not found.");
             }
@@ -72,6 +72,7 @@ function AudioRecorder() {
             // Handle the error in case of failure
             if (outputDiv) {
                 outputDiv.textContent = "Error processing file.";  // Show error message in the output div
+                console.error(error);
             }
         });
     };

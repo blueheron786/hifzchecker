@@ -1,29 +1,44 @@
 package com.hifzchecker.listener.controllers;
 
-import com.hifzchecker.listener.whisper.WhisperTranscriber;
-import org.springframework.web.bind.annotation.*;
+import com.hifzchecker.listener.transcription.HuggingFaceTranscriber;
+import com.hifzchecker.listener.transcription.LocalWhisperTranscriber;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/listener")
 public class AudioListenerController {
 
-    @PostMapping("/transcribe")
-    public String transcribeAudio(@RequestParam("file") MultipartFile file) throws IOException, InterruptedException {
-        // Save the uploaded file to disk
-        File audioFile = File.createTempFile("uploaded-audio", ".wav");
-        file.transferTo(audioFile);
-        // Call Python script to process the file
-        String transcription = runWhisperScript(audioFile.getAbsolutePath());
+    @Autowired
+    private LocalWhisperTranscriber localWhisperTranscriber;
 
-        // Return the transcription result
-        return transcription;
+    @Autowired
+    private HuggingFaceTranscriber huggingFaceTranscriber;
+
+    @Value("${transcription.mode}")  // Read from application.yml
+    private String mode;
+
+    public AudioListenerController(LocalWhisperTranscriber localWhisperTranscriber, HuggingFaceTranscriber huggingFaceTranscriber) {
+        this.localWhisperTranscriber = localWhisperTranscriber;
+        this.huggingFaceTranscriber = huggingFaceTranscriber;
     }
 
-    private String runWhisperScript(String audioFilePath) throws IOException, InterruptedException {
-        return new WhisperTranscriber().transcribe(audioFilePath);
+    @PostMapping("/transcribe")
+    public String transcribeAudio(@RequestParam("file") MultipartFile file) throws IOException, InterruptedException {
+        File audioFile = File.createTempFile("uploaded-audio", ".wav");
+        file.transferTo(audioFile);
+
+        if ("huggingface".equalsIgnoreCase(mode)) {
+            return huggingFaceTranscriber.transcribe(audioFile.getAbsolutePath());
+        } else {
+            return localWhisperTranscriber.transcribe(audioFile.getAbsolutePath());
+        }
     }
 }

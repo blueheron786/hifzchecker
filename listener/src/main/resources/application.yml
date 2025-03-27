@@ -7,3 +7,5 @@ spring:
       max-request-size: 10MB
 server:
   port: 8081
+transcription:
+  mode: local  # "local" or "huggingface"

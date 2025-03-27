@@ -1,5 +1,6 @@
-import whisper
+import json
 import sys
+import whisper
 
 # Load the Whisper model.
 # Tiny, base, small, medium, and large
@@ -10,7 +11,7 @@ model = whisper.load_model("medium")
 
 # Transcribe the audio file passed via command-line argument
 audio_file = sys.argv[1]
-result = model.transcribe(audio_file)
+result = model.transcribe(audio_file) # JSON object
 
-# Output the transcription text to stdout
-print(result["text"])
+# Output the transcription text to stdout as JSON
+print(json.dumps(result))

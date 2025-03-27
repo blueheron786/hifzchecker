@@ -1,8 +1,11 @@
-package com.hifzchecker.listener.whisper;
+package com.hifzchecker.listener.transcription;
+
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 
-public class WhisperTranscriber {
+@Service
+public class LocalWhisperTranscriber {
     public static String transcribe(String audioFilePath) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "/bin/bash", "-c", "source ~/whisper-env/bin/activate && python3 transcribe.py " + audioFilePath

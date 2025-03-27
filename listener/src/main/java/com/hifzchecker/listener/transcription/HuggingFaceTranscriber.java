@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class HuggingFaceTranscriber {
 
     private final String HUGGING_FACE_API_ENDPOINT =
-            "https://router.huggingface.co/hf-inference/models/openai/whisper-tiny";
+            "https://router.huggingface.co/hf-inference/models/tarteel-ai/whisper-base-ar-quran";
 
     private static final int REQUIRED_SAMPLE_RATE = 16000; // Whisper Tiny requires 16kHz sample rate.
 

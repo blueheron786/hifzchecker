@@ -5,8 +5,8 @@ function AudioRecorder() {
   const [audioUrl, setAudioUrl] = useState(null);
   const [audioBlob, setAudioBlob] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
-
-  const transcriptionDiv = document.getElementById('transcription-output');
+  const [isProcessing, setIsProcessing] = useState(false); // Track processing state
+  const [error, setError] = useState(null); // Error state
 
   const startRecording = () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -28,6 +28,11 @@ function AudioRecorder() {
 
         recorder.start();
         setIsRecording(true);
+        setError(null);  // Reset error on new recording
+      })
+      .catch((err) => {
+        console.error("Error accessing audio:", err);
+        setError("Unable to access audio. Please check your device settings.");
       });
   };
 
@@ -38,60 +43,67 @@ function AudioRecorder() {
     }
   };
 
-    const uploadAudio = () => {
-        const formData = new FormData();
-        formData.append("file", audioBlob, "audio.wav");
+  const uploadAudio = () => {
+    if (!audioBlob) {
+      setError("No audio to upload.");
+      return;
+    }
 
-        // Get the div for output (where both transcription and processing time will be displayed)
-        const outputDiv = document.getElementById('transcription-output');
-        if (outputDiv) {
-            outputDiv.textContent = "Processing...";  // Show "Processing..."
-        }
+    setIsProcessing(true);
+    const formData = new FormData();
+    formData.append("file", audioBlob, "audio.wav");
 
-        const startTime = Date.now();  // Record start time before the request
+    // Reset error state before starting the upload
+    setError(null);
 
-        fetch("http://localhost:8080/web/upload", {
-            method: "POST",
-            body: formData,  // Don't manually set Content-Type header
-        })
-        .then(response => response.json())  // Expect plain text response (transcription)
-        .then(transcription => {
-            const endTime = Date.now();  // Record end time after the response is received
-            const generationTime = ((endTime - startTime) / 1000).toFixed(1); // Time in seconds (1 decimal place)
+    const startTime = Date.now();
 
-            // Update the output div with the transcription and processing time
-            if (outputDiv) {
-                outputDiv.innerHTML = `${transcription["text"]}<br><br>Processed in ${generationTime} seconds`;  // Display both transcription and time
-            } else {
-                console.error("Output div not found.");
-            }
-        })
-        .catch(error => {
-            console.error("Error uploading file:", error);
+    fetch("http://localhost:8080/web/upload", {
+      method: "POST",
+      body: formData,  // Don't manually set Content-Type header
+    })
+    .then(response => response.json())
+    .then(transcription => {
+      const endTime = Date.now();
+      const generationTime = ((endTime - startTime) / 1000).toFixed(1);
 
-            // Handle the error in case of failure
-            if (outputDiv) {
-                outputDiv.textContent = "Error processing file.";  // Show error message in the output div
-                console.error(error);
-            }
-        });
-    };
+      setIsProcessing(false);
+      setAudioUrl(null); // Reset the audio URL after processing
+      setAudioBlob(null); // Clear the blob
+      setError(null); // Clear previous error state
+
+      // Display transcription and processing time
+      alert(`${transcription["text"]}\nProcessed in ${generationTime} seconds`);
+    })
+    .catch(error => {
+      setIsProcessing(false);
+      setError("Error processing file.");
+      console.error("Error uploading file:", error);
+    });
+  };
 
   return (
     <div>
       <h1>Record Audio</h1>
-      <button onClick={startRecording} disabled={isRecording}>Start Recording</button>
-      <button onClick={stopRecording} disabled={!isRecording}>Stop Recording</button>
+      <button onClick={startRecording} disabled={isRecording || isProcessing}>
+        Start Recording
+      </button>
+      <button onClick={stopRecording} disabled={!isRecording || isProcessing}>
+        Stop Recording
+      </button>
 
-        <div id="transcription-output"></div>
+      {error && <div style={{ color: "red" }}>{error}</div>}
 
-        <br />
-      { audioUrl && (
+      <br />
+
+      {audioUrl && (
         <div>
           <h2>Preview</h2>
           <audio controls src={audioUrl}></audio>
           <br />
-          <button onClick={uploadAudio}>Transcribe Audio</button>
+          <button onClick={uploadAudio} disabled={isProcessing}>
+            {isProcessing ? "Processing..." : "Transcribe Audio"}
+          </button>
         </div>
       )}
     </div>

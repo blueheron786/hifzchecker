@@ -8,4 +8,4 @@ spring:
 server:
   port: 8081
 transcription:
-  mode: local  # "local" or "huggingface"
+  mode: huggingface  # "local" or "huggingface"

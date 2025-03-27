@@ -7,6 +7,7 @@ function AudioRecorder() {
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false); // Track processing state
   const [error, setError] = useState(null); // Error state
+  const [transcription, setTranscription] = useState(null); // State to store transcription text
 
   const startRecording = () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -72,8 +73,10 @@ function AudioRecorder() {
       setAudioBlob(null); // Clear the blob
       setError(null); // Clear previous error state
 
-      // Display transcription and processing time
-      alert(`${transcription["text"]}\nProcessed in ${generationTime} seconds`);
+      setTranscription({
+        text: transcription.text,
+        generationTime
+      });
     })
     .catch(error => {
       setIsProcessing(false);
@@ -104,6 +107,14 @@ function AudioRecorder() {
           <button onClick={uploadAudio} disabled={isProcessing}>
             {isProcessing ? "Processing..." : "Transcribe Audio"}
           </button>
+        </div>
+      )}
+
+      {transcription && (
+        <div>
+          <h2>Transcription Result</h2>
+          <p>{transcription.text}</p>
+          <p>Processed in {transcription.generationTime} seconds</p>
         </div>
       )}
     </div>

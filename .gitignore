@@ -25,5 +25,6 @@ replay_pid*
 
 # OTHER
 .gradle
+node_modules
 build
-huggingface_api_key.txt
+token.txt
